@@ -31,13 +31,8 @@ module ContentSpinning
       text_or_array.map! do |text|
         return [text] unless text.include? spin_begin
 
-        array = text.partition(Regexp.new(spin_begin + '.+?' + spin_end))
-        #puts array.inspect
+        deb, vary, fin = text.partition(Regexp.new(spin_begin + '.+?' + spin_end))
 
-        deb = array[0]
-        fin = array[2]
-
-        vary = array[1]
         vary.gsub!(Regexp.union(spin_begin, spin_end), '')
         varies = vary.split(Regexp.new(spin_or))
 
