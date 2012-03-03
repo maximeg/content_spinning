@@ -32,6 +32,5 @@ gem install content_spinning
 
 A few things to do :
 
-* Specs with Rspec
 * Executable
 
