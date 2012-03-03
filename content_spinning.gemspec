@@ -15,8 +15,11 @@ Gem::Specification.new do |s|
   s.files       = %w( README.md LICENSE )
   s.files      += Dir.glob("lib/**/*")
   s.require_paths = ["lib"]
-
+  s.test_files  = Dir.glob("spec/**/*")
   s.has_rdoc    = false
+
+  s.add_development_dependency 'rspec', '~> 2.8'
+  s.add_development_dependency 'guard-rspec'
 
   s.description = <<description
     To spin some text, mainly for SEO purpose.
