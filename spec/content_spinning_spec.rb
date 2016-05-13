@@ -5,7 +5,7 @@ describe String do
 
   describe "spin" do
     it "should be defined" do
-      String.new.respond_to?(:spin).should be_true
+      expect(String.new).to respond_to(:spin)
     end
     it "should call the spin function of ContentSpinning module with the string in argument" do
       ContentSpinning.should_receive(:spin).with("AaBb")
@@ -135,6 +135,16 @@ describe ContentSpinning do
       "{a|b|c}".spin.should eq ["a", "b", "c"]
       "{a|b|c}d".spin.should eq ["ad", "bd", "cd"]
       "{a|b|c}{d|e}".spin.should eq ["ad", "ae", "bd", "be", "cd", "ce"]
+    end
+
+    it 'should not change string content' do
+      target = '{a|b|c}{d|e}'
+      expected = ['ad', 'ae', 'bd', 'be', 'cd', 'ce']
+
+      target.spin.should eq expected
+
+      # second spin returns: __SPIN_BEGIN_1__a__SPIN_OR_1__b__SPIN_OR_1__c__SPIN_END_1____SPIN_BEGIN_1__d__SPIN_OR_1__e__SPIN_END_1__
+      target.spin.should eq expected
     end
 
     it "should manage recursive spin" do
