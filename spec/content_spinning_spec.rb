@@ -137,6 +137,16 @@ describe ContentSpinning do
       "{a|b|c}{d|e}".spin.should eq ["ad", "ae", "bd", "be", "cd", "ce"]
     end
 
+    it 'should not change string content' do
+      target = '{a|b|c}{d|e}'
+      expected = ['ad', 'ae', 'bd', 'be', 'cd', 'ce']
+
+      target.spin.should eq expected
+
+      # second spin returns: __SPIN_BEGIN_1__a__SPIN_OR_1__b__SPIN_OR_1__c__SPIN_END_1____SPIN_BEGIN_1__d__SPIN_OR_1__e__SPIN_END_1__
+      target.spin.should eq expected
+    end
+
     it "should manage recursive spin" do
       "{a{b|c}|d}".spin.should eq ["ab", "ac", "d"]
       "{{a|b}|c}".spin.should eq ["a", "b", "c"]
