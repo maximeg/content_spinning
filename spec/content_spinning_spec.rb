@@ -5,7 +5,7 @@ describe String do
 
   describe "spin" do
     it "should be defined" do
-      String.new.respond_to?(:spin).should be_true
+      expect(String.new).to respond_to(:spin)
     end
     it "should call the spin function of ContentSpinning module with the string in argument" do
       ContentSpinning.should_receive(:spin).with("AaBb")
