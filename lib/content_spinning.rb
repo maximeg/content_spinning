@@ -7,16 +7,16 @@ module ContentSpinning
     def spin(text)
       result = parse(clean(text))
 
-      content_array = if result[:max_level] == 0
+      contents = if result[:max_level] == 0
         [result[:parsed]]
       else
         spin_a_level([result[:parsed]], level: result[:max_level])
       end
 
-      content_array.reject!(&:empty?)
-      content_array.uniq!
+      contents.reject!(&:empty?)
+      contents.uniq!
 
-      content_array
+      contents
     end
 
     EMPTY_SPIN_REGEXP = /\{\|*\}/

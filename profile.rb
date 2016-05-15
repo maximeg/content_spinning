@@ -4,15 +4,16 @@ Bundler.setup
 require "content_spinning"
 require "ruby-prof"
 
-n = 500
+n = 100
 spins = 5
 
-source = "{a|b|{c|d}}" * spins
+source = "{a|b|{c|d|{e|f}}}" * spins
 
 RubyProf.start
 
-n.times do
-  source.spin
+n.times do |i|
+  result = ContentSpinning.spin(source)
+  puts(result.length) if i == 0
 end
 
 result = RubyProf.stop
