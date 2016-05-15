@@ -1,6 +1,9 @@
 AllCops:
   TargetRubyVersion: 2.2
 
+Lint/EndAlignment:
+  AlignWith: variable
+
 Metrics/AbcSize:
   Max: 20 # default: 15
 

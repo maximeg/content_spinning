@@ -75,9 +75,7 @@ module ContentSpinning
           before, spin, after = text.partition(PARTITIONNER_REGEXP_FOR_LEVEL[level])
 
           # Before
-          if before != ""
-            parts << [before]
-          end
+          parts << [before] if before != ""
 
           break if spin == ""
 
