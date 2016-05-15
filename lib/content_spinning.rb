@@ -5,6 +5,7 @@ module ContentSpinning
   class << self
 
     def spin(text)
+      text = text.dup
       text = clean(text)
       result = parse(text)
 
@@ -13,7 +14,7 @@ module ContentSpinning
 
     def clean(text)
       loop do
-        text_before_run = text.clone
+        text_before_run = text.dup
 
         # Strip empty spin
         text.gsub!(/\{\|*\}/, "")

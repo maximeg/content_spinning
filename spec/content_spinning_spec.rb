@@ -130,5 +130,12 @@ describe ContentSpinning do
     it "does not return twice the same result" do
       expect(ContentSpinning.spin("{a|a}")).to eq(["a"])
     end
+
+    it "does not modify the source string" do
+      source = "{a|b}"
+      expect {
+        ContentSpinning.spin(source)
+      }.not_to change { source }
+    end
   end
 end
