@@ -37,8 +37,8 @@ module ContentSpinning
       return { parsed: text, max_level: level - 1 } unless text.include?("{")
 
       text.gsub!(INNER_SPIN_REGEXP) do |match|
-        match.gsub!("{", "__SPIN_BEGIN_#{level}__")
-        match.gsub!("}", "__SPIN_END_#{level}__")
+        match.sub!("{", "__SPIN_BEGIN_#{level}__")
+        match.sub!("}", "__SPIN_END_#{level}__")
         match.gsub!("|", "__SPIN_OR_#{level}__")
       end
 
@@ -95,7 +95,10 @@ module ContentSpinning
         end
       end
 
-      content_array.delete_if(&:empty?).uniq
+      content_array.reject!(&:empty?)
+      content_array.uniq!
+
+      content_array
     end
 
   end
