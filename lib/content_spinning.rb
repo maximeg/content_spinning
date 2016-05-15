@@ -5,9 +5,7 @@ module ContentSpinning
   class << self
 
     def spin(text)
-      text = text.dup
-      text = clean(text)
-      result = parse(text)
+      result = parse(clean(text))
 
       content_array = if result[:max_level] == 0
         [result[:parsed]]
@@ -25,33 +23,42 @@ module ContentSpinning
     ONE_CHOICE_SPIN_REGEXP = /\{([^\{\}\|]+)\}/
 
     def clean(text)
+      cleaned = text.dup
+
       loop do
-        text_before_run = text.dup
+        text_before_run = cleaned.dup
 
         # Strip empty spin
-        text.gsub!(EMPTY_SPIN_REGEXP, "")
+        cleaned.gsub!(EMPTY_SPIN_REGEXP, "")
 
         # Remove spin with only one choice
-        text.gsub!(ONE_CHOICE_SPIN_REGEXP, '\1')
+        cleaned.gsub!(ONE_CHOICE_SPIN_REGEXP, '\1')
 
-        break if text == text_before_run
+        break if cleaned == text_before_run
       end
 
-      text
+      cleaned
     end
 
     INNER_SPIN_REGEXP = /\{([^\{\}]+)\}/
 
-    def parse(text, level = 1)
-      return { parsed: text, max_level: level - 1 } unless text.include?("{")
+    def parse(text)
+      parsed = text.dup
 
-      text.gsub!(INNER_SPIN_REGEXP) do |match|
-        match.sub!("{", "__SPIN_BEGIN_#{level}__")
-        match.sub!("}", "__SPIN_END_#{level}__")
-        match.gsub!("|", "__SPIN_OR_#{level}__")
+      level = 0
+      loop do
+        level += 1
+
+        modification_happened = parsed.gsub!(INNER_SPIN_REGEXP) do |match|
+          match.sub!("{", "__SPIN_BEGIN_#{level}__")
+          match.sub!("}", "__SPIN_END_#{level}__")
+          match.gsub!("|", "__SPIN_OR_#{level}__")
+        end
+
+        break unless modification_happened
       end
 
-      parse(text, level + 1)
+      { parsed: parsed, max_level: level - 1 }
     end
 
     PARTITIONNER_REGEXP_FOR_LEVEL = Hash.new { |h, level| h[level] = /__SPIN_BEGIN_#{level}__.+?__SPIN_END_#{level}__/ }
