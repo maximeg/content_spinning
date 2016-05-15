@@ -4,7 +4,7 @@ Bundler.setup
 require "benchmark"
 require "content_spinning"
 
-n = 200
+n = 500
 spins = 5
 Benchmark.bm(5) do |x|
   (1..spins).each do |spin|

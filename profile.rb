@@ -4,7 +4,7 @@ Bundler.setup
 require "content_spinning"
 require "ruby-prof"
 
-n = 200
+n = 500
 spins = 5
 
 source = "{a|b|{c|d}}" * spins

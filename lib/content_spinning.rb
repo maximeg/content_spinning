@@ -54,30 +54,36 @@ module ContentSpinning
       spin_end = "__SPIN_END_#{level}__"
       spin_or = "__SPIN_OR_#{level}__"
 
-      content_array.map! do |text|
-        if text.include?(spin_begin)
-          # Spin a first one
-          before, vary, after = text.partition(PARTITIONNER_REGEXP_FOR_LEVEL[level])
-          vary.gsub!(spin_begin, "")
-          vary.gsub!(spin_end, "")
+      content_array.flat_map do |text|
+        parts = []
 
-          varies = vary.split(spin_or, -1)
-          varies.map! { |choice| before + choice + after }
+        loop do
+          before, spin, after = text.partition(PARTITIONNER_REGEXP_FOR_LEVEL[level])
 
-          # Continue spinning the level if there are other same level spin or just return
-          if after.include?(spin_begin)
-            spin_a_level(varies, level)
-          else
-            varies
+          # Before
+          if before != ""
+            parts << [before]
+          end
+
+          break if spin == ""
+
+          # Let's vary
+          spin.sub!(spin_begin, "")
+          spin.sub!(spin_end, "")
+          parts << spin.split(spin_or, -1)
+
+          # After
+          text = after
+        end
+
+        if parts.length > 1
+          parts[0].product(*parts[1..-1]).tap do |products|
+            products.map!(&:join)
           end
         else
-          text
+          parts[0]
         end
       end
-
-      content_array.flatten!
-
-      content_array
     end
 
     def spin_all_level(text_or_array, from_level)
