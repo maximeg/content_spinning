@@ -9,7 +9,16 @@ module ContentSpinning
       text = clean(text)
       result = parse(text)
 
-      spin_all_level(result[:parsed], result[:max_level])
+      content_array = if result[:max_level] == 0
+        [result[:parsed]]
+      else
+        spin_a_level([result[:parsed]], level: result[:max_level])
+      end
+
+      content_array.reject!(&:empty?)
+      content_array.uniq!
+
+      content_array
     end
 
     EMPTY_SPIN_REGEXP = /\{\|*\}/
@@ -47,14 +56,12 @@ module ContentSpinning
 
     PARTITIONNER_REGEXP_FOR_LEVEL = Hash.new { |h, level| h[level] = /__SPIN_BEGIN_#{level}__.+?__SPIN_END_#{level}__/ }
 
-    def spin_a_level(text_or_array, level)
-      content_array = text_or_array.is_a?(Array) ? text_or_array : [text_or_array]
-
+    def spin_a_level(contents, level:)
       spin_begin = "__SPIN_BEGIN_#{level}__"
       spin_end = "__SPIN_END_#{level}__"
       spin_or = "__SPIN_OR_#{level}__"
 
-      content_array.flat_map do |text|
+      contents.flat_map do |text|
         parts = []
 
         loop do
@@ -76,6 +83,10 @@ module ContentSpinning
           text = after
         end
 
+        parts.map! do |part|
+          spin_a_level(part, level: level - 1)
+        end if level >= 2
+
         if parts.length > 1
           parts[0].product(*parts[1..-1]).tap do |products|
             products.map!(&:join)
@@ -84,21 +95,6 @@ module ContentSpinning
           parts[0]
         end
       end
-    end
-
-    def spin_all_level(text_or_array, from_level)
-      content_array = text_or_array.is_a?(Array) ? text_or_array : [text_or_array]
-
-      if from_level > 0
-        (1..from_level).reverse_each do |level|
-          content_array = spin_a_level(content_array, level)
-        end
-      end
-
-      content_array.reject!(&:empty?)
-      content_array.uniq!
-
-      content_array
     end
 
   end
