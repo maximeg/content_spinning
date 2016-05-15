@@ -2,6 +2,14 @@ require "content_spinning/core_ext/string"
 
 module ContentSpinning
 
+  SPIN_BEGIN_FOR_LEVEL = Hash.new { |h, level| h[level] = "__SPIN_BEGIN_#{level}__" }
+  SPIN_END_FOR_LEVEL = Hash.new { |h, level| h[level] = "__SPIN_END_#{level}__" }
+  SPIN_OR_FOR_LEVEL = Hash.new { |h, level| h[level] = "__SPIN_OR_#{level}__" }
+
+  PARTITIONNER_REGEXP_FOR_LEVEL = Hash.new do |h, level|
+    h[level] = /#{SPIN_BEGIN_FOR_LEVEL[level]}.+?#{SPIN_END_FOR_LEVEL[level]}/
+  end
+
   class << self
 
     def spin(text)
@@ -50,9 +58,9 @@ module ContentSpinning
         level += 1
 
         modification_happened = parsed.gsub!(INNER_SPIN_REGEXP) do |match|
-          match.sub!("{", "__SPIN_BEGIN_#{level}__")
-          match.sub!("}", "__SPIN_END_#{level}__")
-          match.gsub!("|", "__SPIN_OR_#{level}__")
+          match.sub!("{", SPIN_BEGIN_FOR_LEVEL[level])
+          match.sub!("}", SPIN_END_FOR_LEVEL[level])
+          match.gsub!("|", SPIN_OR_FOR_LEVEL[level])
         end
 
         break unless modification_happened
@@ -61,32 +69,9 @@ module ContentSpinning
       { parsed: parsed, max_level: level - 1 }
     end
 
-    PARTITIONNER_REGEXP_FOR_LEVEL = Hash.new { |h, level| h[level] = /__SPIN_BEGIN_#{level}__.+?__SPIN_END_#{level}__/ }
-
     def spin_a_level(contents, level:)
-      spin_begin = "__SPIN_BEGIN_#{level}__"
-      spin_end = "__SPIN_END_#{level}__"
-      spin_or = "__SPIN_OR_#{level}__"
-
       contents.flat_map do |text|
-        parts = []
-
-        loop do
-          before, spin, after = text.partition(PARTITIONNER_REGEXP_FOR_LEVEL[level])
-
-          # Before
-          parts << [before] if before != ""
-
-          break if spin == ""
-
-          # Let's vary
-          spin.sub!(spin_begin, "")
-          spin.sub!(spin_end, "")
-          parts << spin.split(spin_or, -1)
-
-          # After
-          text = after
-        end
+        parts = extract_parts(text, level: level)
 
         parts.map! do |part|
           spin_a_level(part, level: level - 1)
@@ -100,6 +85,31 @@ module ContentSpinning
           parts[0]
         end
       end
+    end
+
+    private
+
+    def extract_parts(text, level:)
+      parts = []
+
+      loop do
+        before, spin, after = text.partition(PARTITIONNER_REGEXP_FOR_LEVEL[level])
+
+        # Before
+        parts << [before] if before != ""
+
+        break if spin == ""
+
+        # Let's vary
+        spin.sub!(SPIN_BEGIN_FOR_LEVEL[level], "")
+        spin.sub!(SPIN_END_FOR_LEVEL[level], "")
+        parts << spin.split(SPIN_OR_FOR_LEVEL[level], -1)
+
+        # After
+        text = after
+      end
+
+      parts
     end
 
   end
