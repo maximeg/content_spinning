@@ -12,11 +12,16 @@ Gem::Specification.new do |s|
   s.summary     = "Content Spinning"
   s.homepage    = "http://github.com/maximeg/content_spinning"
 
+  s.license     = "MIT"
+
   s.files       = %w( README.md LICENSE )
   s.files      += Dir.glob("lib/**/*")
   s.require_paths = ["lib"]
   s.test_files  = Dir.glob("spec/**/*")
   s.has_rdoc    = false
+
+  s.required_ruby_version = ">= 1.9"
+  s.required_rubygems_version = ">= 1.3.6"
 
   s.add_development_dependency "rspec", "~> 3.4"
 
