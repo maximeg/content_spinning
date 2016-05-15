@@ -4,10 +4,10 @@ require "content_spinning/version"
 Gem::Specification.new do |s|
   s.name        = "content_spinning"
   s.version     = ContentSpinning::Version::STRING
-  s.date        = Time.now.strftime('%Y-%m-%d')
+  s.date        = Time.now.strftime("%Y-%m-%d")
 
   s.authors     = ["Maxime Garcia"]
-  s.email       = ["maxime.garcia@maxbusiness.fr"]
+  s.email       = ["maxime.garcia@gmail.com"]
 
   s.summary     = "Content Spinning"
   s.homepage    = "http://github.com/maximeg/content_spinning"
@@ -18,10 +18,9 @@ Gem::Specification.new do |s|
   s.test_files  = Dir.glob("spec/**/*")
   s.has_rdoc    = false
 
-  s.add_development_dependency 'rspec', '~> 2.8'
-  s.add_development_dependency 'guard-rspec'
+  s.add_development_dependency "rspec", "~> 3.4"
 
-  s.description = <<description
+  s.description = <<-TXT.gsub("    ", "")
     To spin some text, mainly for SEO purpose.
 
     Spinning the string "Hi {there|you}! I'm {efficient|productive}." gives
@@ -31,6 +30,5 @@ Gem::Specification.new do |s|
     * Hi there! I'm productive.
     * Hi you! I'm efficient.
     * Hi you! I'm productive.
-description
+  TXT
 end
-

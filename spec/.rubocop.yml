@@ -1,0 +1,11 @@
+inherit_from: ../.rubocop.yml
+
+Style/BlockDelimiters:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/GlobalVars:
+  AllowedVariables:
+    - $logger

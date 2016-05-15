@@ -1,6 +1,9 @@
 module ContentSpinning
-  module Version
-    STRING = '0.0.2'
-  end
-end
 
+  module Version
+
+    STRING = "0.0.2".freeze
+
+  end
+
+end

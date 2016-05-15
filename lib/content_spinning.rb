@@ -1,4 +1,7 @@
+require "content_spinning/core_ext/string"
+
 module ContentSpinning
+
   class << self
 
     def spin(text)
@@ -9,22 +12,23 @@ module ContentSpinning
     end
 
     def clean(text)
-      begin
+      loop do
         text_before_run = text.clone
 
         # Strip empty spin
-        text.gsub!(/\{\|*\}/, '')
+        text.gsub!(/\{\|*\}/, "")
 
         # Remove spin with only one choice
         text.gsub!(/\{([^\{\}\|]+)\}/, '\1')
 
-      end while (text != text_before_run)
+        break if text == text_before_run
+      end
 
       text
     end
 
     def parse(text, level = 1)
-      return {:parsed => text, :max_level => level - 1} unless text.include? "{"
+      return { parsed: text, max_level: level - 1 } unless text.include?("{")
 
       text.gsub!(/\{([^\{\}]+)\}/) do |match|
         match.gsub!(/\{/, "__SPIN_BEGIN_#{level}__")
@@ -32,7 +36,7 @@ module ContentSpinning
         match.gsub!(/\|/, "__SPIN_OR_#{level}__")
       end
 
-      parse(text, level+1)
+      parse(text, level + 1)
     end
 
     def spin_a_level(text_or_array, level)
@@ -43,16 +47,16 @@ module ContentSpinning
       spin_or = "__SPIN_OR_#{level}__"
 
       content_array.map! do |text|
-        if text.include? spin_begin
+        if text.include?(spin_begin)
           # Spin a first one
-          before, vary, after = text.partition(Regexp.new(spin_begin + '.+?' + spin_end))
-          vary.gsub!(Regexp.union(spin_begin, spin_end), '')
+          before, vary, after = text.partition(Regexp.new(spin_begin + ".+?" + spin_end))
+          vary.gsub!(Regexp.union(spin_begin, spin_end), "")
 
           varies = vary.split(Regexp.new(spin_or), -1)
-          varies.map! { |vary| before + vary + after }
+          varies.map! { |choice| before + choice + after }
 
           # Continue spinning the level if there are other same level spin or just return
-          if after.include? spin_begin
+          if after.include?(spin_begin)
             spin_a_level(varies, level).flatten
           else
             varies
@@ -78,11 +82,5 @@ module ContentSpinning
     end
 
   end
-end
 
-String.class_eval do
-  def spin
-    ContentSpinning.spin(self)
-  end
 end
-
