@@ -66,7 +66,7 @@ module ContentSpinning
 
           # Continue spinning the level if there are other same level spin or just return
           if after.include?(spin_begin)
-            spin_a_level(varies, level).flatten
+            spin_a_level(varies, level)
           else
             varies
           end
@@ -75,7 +75,9 @@ module ContentSpinning
         end
       end
 
-      content_array.flatten
+      content_array.flatten!
+
+      content_array
     end
 
     def spin_all_level(text_or_array, from_level)
