@@ -37,6 +37,7 @@ describe ContentSpinning do
     it "keep legitimate spin" do
       expect(ContentSpinning.clean("{a|b}")).to eq("{a|b}")
       expect(ContentSpinning.clean("a{b|c}")).to eq("a{b|c}")
+      expect(ContentSpinning.clean("a{b|}")).to eq("a{b|}")
       expect(ContentSpinning.clean("{{a|b}|c}")).to eq("{{a|b}|c}")
     end
   end
@@ -89,19 +90,14 @@ describe ContentSpinning do
       expect(ContentSpinning.spin("{a}")).to eq(["a"])
       expect(ContentSpinning.spin("a{b}")).to eq(["ab"])
       expect(ContentSpinning.spin("a{b}c")).to eq(["abc"])
-      expect(ContentSpinning.spin("{a}{b}")).to eq(["ab"])
-      expect(ContentSpinning.spin("a{b}{c}d")).to eq(["abcd"])
     end
 
     it "manages two spin" do
-      expect(ContentSpinning.spin("{a}")).to eq(["a"])
-      expect(ContentSpinning.spin("a{b}")).to eq(["ab"])
-      expect(ContentSpinning.spin("a{b}c")).to eq(["abc"])
       expect(ContentSpinning.spin("{a}{b}")).to eq(["ab"])
       expect(ContentSpinning.spin("a{b}{c}d")).to eq(["abcd"])
     end
 
-    it "manages spin with an empty choice" do
+    it "manages spin with an empty choices" do
       expect(ContentSpinning.spin("{|a}")).to eq(["a"])
       expect(ContentSpinning.spin("{|a}b")).to eq(%w(b ab))
       expect(ContentSpinning.spin("{a|}b")).to eq(%w(ab b))
@@ -109,13 +105,14 @@ describe ContentSpinning do
       expect(ContentSpinning.spin("a{b|}{c|}d")).to eq(%w(abcd abd acd ad))
     end
 
-    it "manages spin with two choice" do
+    it "manages spin with two choices" do
       expect(ContentSpinning.spin("{a|b}")).to eq(%w(a b))
       expect(ContentSpinning.spin("{a|b}c")).to eq(%w(ac bc))
       expect(ContentSpinning.spin("{a|b}{c|d}")).to eq(%w(ac ad bc bd))
+      expect(ContentSpinning.spin("{a|b}c{d|e}")).to eq(%w(acd ace bcd bce))
     end
 
-    it "manages spin with three choice" do
+    it "manages spin with three choices" do
       expect(ContentSpinning.spin("{a|b|c}")).to eq(%w(a b c))
       expect(ContentSpinning.spin("{a|b|c}d")).to eq(%w(ad bd cd))
       expect(ContentSpinning.spin("{a|b|c}{d|e}")).to eq(%w(ad ae bd be cd ce))
@@ -125,6 +122,11 @@ describe ContentSpinning do
       expect(ContentSpinning.spin("{a{b|c}|d}")).to eq(%w(ab ac d))
       expect(ContentSpinning.spin("{{a|b}|c}")).to eq(%w(a b c))
       expect(ContentSpinning.spin("{a|{b|c}}")).to eq(%w(a b c))
+      expect(ContentSpinning.spin("{a|{b|c}}{d|e}")).to eq(%w(ad ae bd be cd ce))
+    end
+
+    it "manages recursive spin with empty choices" do
+      expect(ContentSpinning.spin("{a|{b|{c|{d|e}}}}")).to eq(%w(a b c d e))
     end
 
     it "does not return twice the same result" do
