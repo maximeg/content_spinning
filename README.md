@@ -1,5 +1,7 @@
 # Content Spinning
 
+[![Gem Version](https://badge.fury.io/rb/content_spinning.svg)](https://badge.fury.io/rb/content_spinning) [![Build Status](https://travis-ci.org/maximeg/content_spinning.svg?branch=master)](https://travis-ci.org/maximeg/content_spinning)
+
 `ContentSpinning` is a ruby library made to spin some text.
 It manages nested spinning.
 
