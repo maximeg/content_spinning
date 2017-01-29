@@ -1,117 +1,88 @@
 require "content_spinning/core_ext/string"
+require "content_spinning/sentence"
+require "content_spinning/spinner"
+require "content_spinning/string"
 
-module ContentSpinning
-
-  SPIN_BEGIN_FOR_LEVEL = Hash.new { |h, level| h[level] = "__SPIN_BEGIN_#{level}__" }
-  SPIN_END_FOR_LEVEL = Hash.new { |h, level| h[level] = "__SPIN_END_#{level}__" }
-  SPIN_OR_FOR_LEVEL = Hash.new { |h, level| h[level] = "__SPIN_OR_#{level}__" }
-
-  PARTITIONNER_REGEXP_FOR_LEVEL = Hash.new do |h, level|
-    h[level] = /#{SPIN_BEGIN_FOR_LEVEL[level]}.+?#{SPIN_END_FOR_LEVEL[level]}/
-  end
+class ContentSpinning
 
   class << self
 
-    def spin(text)
-      result = parse(clean(text))
+    def spin(source, limit: nil)
+      new(source).spin(limit: limit)
+    end
 
-      contents = if result[:max_level] == 0
-        [result[:parsed]]
+  end
+
+  def initialize(source)
+    @source = source
+  end
+
+  attr_reader :source
+
+  def count
+    parse.count
+  end
+
+  SPIN_END = "}"
+  SPIN_OR = "|"
+  SPIN_START = "{"
+
+  def parse
+    return @root if defined?(@root)
+
+    heap = [Sentence.new]
+
+    source.scan(/ [{}|] | [^{}|]+ /x).each do |part|
+      current = heap.last
+
+      if part == SPIN_START
+        spinner = ::ContentSpinning::Spinner.new
+        current << spinner
+        heap << spinner
+
+        sentence = ::ContentSpinning::Sentence.new
+        spinner << sentence
+        heap << sentence
+      elsif part == SPIN_OR
+        heap.pop
+        spinner = heap.last
+        sentence = ::ContentSpinning::Sentence.new
+        spinner << sentence
+        heap << sentence
+      elsif part == SPIN_END
+        heap.pop
+        heap.pop
       else
-        spin_a_level([result[:parsed]], level: result[:max_level])
-      end
-
-      contents.reject!(&:empty?)
-      contents.uniq!
-
-      contents
-    end
-
-    EMPTY_SPIN_REGEXP = /\{\|*\}/
-    ONE_CHOICE_SPIN_REGEXP = /\{([^\{\}\|]+)\}/
-
-    def clean(text)
-      cleaned = text.dup
-
-      loop do
-        text_before_run = cleaned.dup
-
-        # Strip empty spin
-        cleaned.gsub!(EMPTY_SPIN_REGEXP, "")
-
-        # Remove spin with only one choice
-        cleaned.gsub!(ONE_CHOICE_SPIN_REGEXP, '\1')
-
-        break if cleaned == text_before_run
-      end
-
-      cleaned
-    end
-
-    INNER_SPIN_REGEXP = /\{([^\{\}]+)\}/
-
-    def parse(text)
-      parsed = text.dup
-
-      level = 0
-      loop do
-        level += 1
-
-        modification_happened = parsed.gsub!(INNER_SPIN_REGEXP) do |match|
-          match.sub!("{", SPIN_BEGIN_FOR_LEVEL[level])
-          match.sub!("}", SPIN_END_FOR_LEVEL[level])
-          match.gsub!("|", SPIN_OR_FOR_LEVEL[level])
-        end
-
-        break unless modification_happened
-      end
-
-      { parsed: parsed, max_level: level - 1 }
-    end
-
-    def spin_a_level(contents, level:)
-      contents.flat_map do |text|
-        parts = extract_parts(text, level: level)
-
-        parts.map! do |part|
-          spin_a_level(part, level: level - 1)
-        end if level >= 2
-
-        if parts.length > 1
-          parts[0].product(*parts[1..-1]).tap do |products|
-            products.map!(&:join)
-          end
-        else
-          parts[0]
-        end
+        current << ::ContentSpinning::String.new(part)
       end
     end
 
-    private
+    @root = heap.first.cleaned
+  end
 
-    def extract_parts(text, level:)
-      parts = []
-
-      loop do
-        before, spin, after = text.partition(PARTITIONNER_REGEXP_FOR_LEVEL[level])
-
-        # Before
-        parts << [before] if before != ""
-
-        break if spin == ""
-
-        # Let's vary
-        spin.sub!(SPIN_BEGIN_FOR_LEVEL[level], "")
-        spin.sub!(SPIN_END_FOR_LEVEL[level], "")
-        parts << spin.split(SPIN_OR_FOR_LEVEL[level], -1)
-
-        # After
-        text = after
-      end
-
-      parts
+  def spin(limit: nil)
+    if limit && limit < count
+      spin_with_limit(limit: limit)
+    else
+      spin_all
     end
+  end
 
+  def spin_all
+    parse.spin
+  end
+
+  def spin_with_limit(limit:)
+    parsed = parse
+
+    results = Array.new(limit)
+    results.map! do
+      parsed.random
+    end
+  end
+
+  def to_source
+    parse.to_source
   end
 
 end

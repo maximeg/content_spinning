@@ -7,7 +7,7 @@ describe String do
     end
 
     it "calls the spin function of ContentSpinning module with the string in argument" do
-      expect(ContentSpinning).to receive(:spin).with("AaBb")
+      expect(ContentSpinning).to receive(:spin).with("AaBb", limit: nil)
       "AaBb".spin
     end
 

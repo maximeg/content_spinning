@@ -1,4 +1,4 @@
-module ContentSpinning
+class ContentSpinning
 
   module Version
 

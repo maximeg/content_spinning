@@ -1,7 +1,7 @@
 class String
 
-  def spin
-    ContentSpinning.spin(self)
+  def spin(limit: nil)
+    ContentSpinning.spin(self, limit: limit)
   end
 
 end
