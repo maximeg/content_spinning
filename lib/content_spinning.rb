@@ -34,26 +34,15 @@ class ContentSpinning
     heap = [::ContentSpinning::Sentence.new]
 
     source.scan(/ [{}|] | [^{}|]+ /x).each do |part|
-      current = heap.last
-
-      if part == SPIN_START
-        spinner = ::ContentSpinning::Spinner.new
-        current << spinner
-        heap << spinner
-
-        sentence = ::ContentSpinning::Sentence.new
-        spinner << sentence
-        heap << sentence
-      elsif part == SPIN_OR
-        heap.pop
-        spinner = heap.last
-        sentence = ::ContentSpinning::Sentence.new
-        spinner << sentence
-        heap << sentence
-      elsif part == SPIN_END
-        heap.pop(2)
+      case part
+      when SPIN_START
+        modify_heap_for_spin_start(heap)
+      when SPIN_OR
+        modify_heap_for_spin_or(heap)
+      when SPIN_END
+        modify_heap_for_spin_end(heap)
       else
-        current << ::ContentSpinning::String.new(part)
+        heap.last << ::ContentSpinning::String.new(part)
       end
     end
 
@@ -80,6 +69,33 @@ class ContentSpinning
 
   def to_source
     parse.to_source
+  end
+
+  private
+
+  def modify_heap_for_spin_end(heap)
+    heap.pop(2)
+  end
+
+  def modify_heap_for_spin_or(heap)
+    heap.pop
+    current_spinner = heap.last
+
+    new_sentence = ::ContentSpinning::Sentence.new
+    current_spinner << new_sentence
+    heap << new_sentence
+  end
+
+  def modify_heap_for_spin_start(heap)
+    current = heap.last
+
+    new_spinner = ::ContentSpinning::Spinner.new
+    current << new_spinner
+    heap << new_spinner
+
+    new_sentence = ::ContentSpinning::Sentence.new
+    new_spinner << new_sentence
+    heap << new_sentence
   end
 
 end

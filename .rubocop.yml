@@ -16,7 +16,7 @@ Metrics/LineLength:
   Max: 100 # default: 80
 
 Metrics/MethodLength:
-  Max: 12 # default: 10
+  Max: 15 # default: 10
 
 Metrics/PerceivedComplexity:
   Enabled: false # todo
