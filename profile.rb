@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "bundler"
 Bundler.setup
 
@@ -14,8 +15,7 @@ RubyProf.start
 
 n.times do |i|
   result = ContentSpinning.spin(source, limit: ENV["LIMIT"])
-  puts(result.length) if i == 0
-  puts(result.uniq.length) if i == 0
+  puts(result.length, result.uniq.length) if i.zero?
 end
 
 result = RubyProf.stop

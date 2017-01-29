@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 $LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
 require "content_spinning/version"
 
@@ -14,7 +15,7 @@ Gem::Specification.new do |s|
 
   s.license     = "MIT"
 
-  s.files       = %w( README.md LICENSE )
+  s.files       = %w(README.md LICENSE)
   s.files      += Dir.glob("lib/**/*")
   s.require_paths = ["lib"]
   s.test_files  = Dir.glob("spec/**/*")

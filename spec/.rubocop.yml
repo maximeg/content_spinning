@@ -1,5 +1,8 @@
 inherit_from: ../.rubocop.yml
 
+Metrics/BlockLength:
+  Enabled: false
+
 Style/BlockDelimiters:
   Enabled: false
 
@@ -9,3 +12,4 @@ Style/Documentation:
 Style/GlobalVars:
   AllowedVariables:
     - $logger
+

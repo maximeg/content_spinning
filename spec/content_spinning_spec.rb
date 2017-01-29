@@ -1,7 +1,7 @@
+# frozen_string_literal: true
 require "spec_helper"
 
 describe ContentSpinning do
-
   describe "#count" do
     it "returns an array" do
       expect(ContentSpinning.new("AaBb").count).to eq(1)
@@ -182,7 +182,7 @@ describe ContentSpinning do
       }.not_to change { source }
     end
 
-    context 'with limit' do
+    context "with limit" do
       before { @old_seed = Random.srand(2736) }
       after { Random.srand(@old_seed) }
 

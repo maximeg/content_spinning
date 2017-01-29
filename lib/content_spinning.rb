@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "content_spinning/core_ext/string"
 require "content_spinning/sentence"
 require "content_spinning/spinner"
@@ -30,7 +31,7 @@ class ContentSpinning
   def parse
     return @root if defined?(@root)
 
-    heap = [Sentence.new]
+    heap = [::ContentSpinning::Sentence.new]
 
     source.scan(/ [{}|] | [^{}|]+ /x).each do |part|
       current = heap.last
@@ -50,8 +51,7 @@ class ContentSpinning
         spinner << sentence
         heap << sentence
       elsif part == SPIN_END
-        heap.pop
-        heap.pop
+        heap.pop(2)
       else
         current << ::ContentSpinning::String.new(part)
       end
@@ -75,10 +75,7 @@ class ContentSpinning
   def spin_with_limit(limit:)
     parsed = parse
 
-    results = Array.new(limit)
-    results.map! do
-      parsed.random
-    end
+    Array.new(limit) { parsed.random }
   end
 
   def to_source
