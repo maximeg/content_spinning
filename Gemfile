@@ -16,5 +16,4 @@ group :local do
 end
 
 # Quality
-gem "rubocop", ">= 0.30.1", require: false
-
+gem "rubocop", require: false
